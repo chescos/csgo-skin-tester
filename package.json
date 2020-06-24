@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "async": "^3.2.0",
     "body-parser": "^1.19.0",
     "colors": "^1.4.0",
     "config": "^3.3.1",
@@ -16,7 +17,10 @@
     "express": "^4.17.1",
     "express-validator": "^6.6.0",
     "globaloffensive": "^2.1.0",
+    "knex": "^0.21.1",
     "lodash": "^4.17.15",
+    "objection": "^2.2.0",
+    "pg": "^8.2.1",
     "steam-totp": "^2.1.1",
     "steam-user": "^4.16.2",
     "winston": "^3.3.3"
