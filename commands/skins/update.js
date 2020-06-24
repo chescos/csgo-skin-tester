@@ -1,0 +1,120 @@
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, './.env') });
+const config = require('config');
+const vdf = require('simple-vdf');
+const async = require('async');
+const axios = require('axios');
+const _ = require('lodash');
+
+const sources = {
+  itemsGame: 'https://raw.githubusercontent.com/SteamDatabase/GameTracking-CSGO/master/csgo/scripts/items/items_game.txt',
+  itemsGameCdn: 'https://raw.githubusercontent.com/SteamDatabase/GameTracking-CSGO/master/csgo/scripts/items/items_game_cdn.txt',
+  csgoEnglish: 'https://raw.githubusercontent.com/SteamDatabase/GameTracking-CSGO/master/csgo/resource/csgo_english.txt',
+  schema: `https://api.steampowered.com/IEconItems_730/GetSchema/v2/?key=${config.get('steam.apiKey')}&format=vdf&language=`,
+};
+
+(async () => {
+  const results = {};
+
+  await async.eachOf(sources, async (url, key) => {
+    const response = await axios.get(url);
+    results[key] = response.data;
+  });
+
+  results.itemsGame = vdf.parse(results.itemsGame);
+  results.csgoEnglish = vdf.parse(results.csgoEnglish);
+  results.schema = vdf.parse(results.schema);
+  results.itemsGameCdn = results.itemsGameCdn.split('\n').reduce((result, line) => {
+    if (line.charAt(0) === '#' || line === '') {
+      return result;
+    }
+
+    const parts = line.split('=');
+
+    // eslint-disable-next-line no-param-reassign
+    result[parts[0]] = parts[1]
+      .replace('\r', '')
+      .replace('\n', '');
+
+    return result;
+  }, {});
+
+  _.forEach(results.csgoEnglish.lang.Tokens, (token, key) => {
+    delete results.csgoEnglish.lang.Tokens[key];
+    results.csgoEnglish.lang.Tokens[key.toLowerCase()] = token;
+  });
+
+  const getTranslation = (key) => {
+    let translation = false;
+
+    const translationKey = key.replace('#', '').toLowerCase();
+
+    if (results.csgoEnglish.lang.Tokens[translationKey]) {
+      translation = results.csgoEnglish.lang.Tokens[translationKey];
+    }
+
+    return translation;
+  };
+
+  const { items } = results.schema.result;
+  const paintkits = results.itemsGame.items_game.paint_kits;
+  const skins = results.itemsGameCdn;
+
+  const result = [];
+
+  _.forEach(skins, (image, name) => {
+    // Skin is a default skin (e.g default AWP, Taser, Smoke Grenade, etc).
+    // Ignore those.
+    if (_.map(items, 'name').includes(name)) {
+      return;
+    }
+
+    let matchingItem = null;
+
+    _.forEach(items, (item) => {
+      const isCurrentlyBestMatch = name.startsWith(item.name)
+        && (matchingItem === null || item.name.length > matchingItem.name.length);
+
+      if (isCurrentlyBestMatch) {
+        matchingItem = item;
+      }
+    });
+
+    const paintname = name.substring(matchingItem.name.length + 1);
+
+    let matchingPaintkit = null;
+
+    _.forEach(paintkits, (paintkit, defindex) => {
+      if (paintkit.name.toLowerCase() === paintname) {
+        matchingPaintkit = {
+          ...paintkit,
+          defindex,
+        };
+      }
+    });
+
+    const res = {
+      name_technical: name,
+      image_url: image.replace('http://media.steampowered.com', 'https://steamcdn-a.akamaihd.net'),
+      item: {
+        name_technical: matchingItem.name,
+        defindex: matchingItem.defindex,
+        image_url: matchingItem.image_url,
+        class: matchingItem.item_class,
+        name: getTranslation(matchingItem.item_name),
+        type: getTranslation(matchingItem.item_type_name),
+      },
+      paintkit: {
+        name_technical: matchingPaintkit.name,
+        name: getTranslation(matchingPaintkit.description_tag),
+        defindex: matchingPaintkit.defindex,
+      },
+    };
+
+    res.name = `${res.item.name} | ${res.paintkit.name}`;
+
+    result.push(res);
+  });
+
+  // TODO: Insert items, paintkits, and skins into the database...
+})();

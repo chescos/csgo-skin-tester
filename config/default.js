@@ -18,4 +18,8 @@ module.exports = {
       max: parseInt(env.DATABASE_MAX_CONNECTIONS, 10) || 100,
     },
   },
+
+  steam: {
+    apiKey: env.STEAM_API_KEY,
+  },
 };
