@@ -3,6 +3,7 @@ require('dotenv').config({ path: path.join(__dirname, './.env') });
 const config = require('config');
 const express = require('express');
 const http = require('http');
+require('./database');
 const logger = require('./modules/Logger');
 
 const app = express();
