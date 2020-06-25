@@ -63,10 +63,12 @@ exports.store = async (req, res) => {
 
   gameServer.sendSkin(data);
 
+  const isPlayerConnected = gameServer.isPlayerConnected(ip);
+  const availableServer = gameServer.getAvailableServer();
+
   return res.status(201).json({
     success: true,
-    inspection,
-    skin,
-    data,
+    needs_to_connect: !isPlayerConnected,
+    connect_to_server: isPlayerConnected ? null : availableServer,
   });
 };

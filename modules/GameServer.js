@@ -1,3 +1,5 @@
+/* eslint no-param-reassign: 0 */
+
 const nssocket = require('nssocket');
 const _ = require('lodash');
 const config = require('config');
@@ -40,22 +42,46 @@ class GameServer {
       });
 
       // Here, `socket` is an instance of `nssocket.NsSocket`.
-      socket.on(['data', 'identifier'], (data) => {
+      socket.on(['data', 'server-data'], (data) => {
         // Good! The socket speaks our language, (i.e. simple 'you::there', 'iam::here' protocol).
-        logger.info('Received identifier event from socket', data);
+        logger.info('Received server-data event from socket', data);
 
-        // Data is correctly formatted and socket is not in our `sockets` object yet.
-        const dataIsValid = typeof data === 'object'
-          && 'identifier' in data
-          && typeof data.identifier === 'string'
-          && !(data.identifier in this.sockets);
+        const address = `${data.ip}:${data.port}`;
 
-        if (dataIsValid) {
-          // eslint-disable-next-line no-param-reassign
-          socket.identifier = data.identifier;
-          this.sockets[data.identifier] = socket;
+        if (!this.sockets[address]) {
+          socket.serverData = {
+            address,
+            ip: data.ip,
+            port: data.port,
+            slots: data.slots,
+          };
+
+          socket.players = [];
+
+          this.sockets[address] = socket;
+
           logger.info('Added socket to list');
         }
+      });
+
+      socket.on(['data', 'player-connected'], (data) => {
+        logger.info('Received player-connected event from socket', data);
+
+        if (!socket.players) {
+          socket.players = [];
+        }
+
+        socket.players.push(data.ip);
+      });
+
+      socket.on(['data', 'player-disconnected'], (data) => {
+        logger.info('Received player-disconnected event from socket', data);
+
+        if (!socket.players) {
+          socket.players = [];
+        }
+
+        _.remove(socket.players, (ip) => ip === data.ip);
       });
     });
 
@@ -69,8 +95,26 @@ class GameServer {
 
   sendSkin(data) {
     _.forEach(this.sockets, (socket) => {
-      socket.send('skin', data);
+      socket.send('skin-created', data);
     });
+  }
+
+  isPlayerConnected(ip) {
+    return _.some(
+      this.sockets,
+      (socket) => socket.players.includes(ip),
+    );
+  }
+
+  getAvailableServer() {
+    return _.get(
+      _.find(
+        this.sockets,
+        (socket) => socket.serverData.slots > socket.players.length,
+      ),
+      'serverData.address',
+      null,
+    );
   }
 }
 
