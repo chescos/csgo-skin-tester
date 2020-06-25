@@ -26,8 +26,8 @@ module.exports = {
     accounts: [
       {
         username: 'chesc0s42',
-        password: '2ad4faa6fcff3674c2775a244d78ed6c:725afb94b0f9bb95114b81bc',
-        sharedSecret: '14a5daf4e431ac30b61b3414aa06127c:69cbb6c0535619cd57100ba1cfff4da462e8e19e1a5eda78ee15c829',
+        password: '5ab2581b4330cfb5562de8c617ba7874:84c6383ae47a9c27bc22ce92',
+        sharedSecret: 'cde28d858c317fd519111d0a342caefc:f77f2c8574d6ef1bb6b6be344cf2188ab04f974b17217091661406a0',
       },
     ],
   },
