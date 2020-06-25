@@ -7,7 +7,7 @@ require('./database');
 const logger = require('./modules/Logger');
 
 const app = express();
-const port = config.get('port');
+const port = config.get('webPort');
 
 // Parse the HTTP message body for input parameters.
 // Any parameters that are found will be added to `req.body`.
@@ -31,7 +31,7 @@ const server = http.createServer(app);
 
 // Start the HTTP server and listen for connections.
 server.listen(port, '0.0.0.0', () => {
-  logger.info(`Listening on port ${port}`);
+  logger.info(`Web server is now listening on port ${port}`);
 });
 
 module.exports = { app, server };

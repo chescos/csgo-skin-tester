@@ -5,7 +5,8 @@ const { env } = process;
 
 module.exports = {
   env: env.NODE_ENV || 'development',
-  port: env.PORT || 3000,
+  webPort: env.WEB_PORT || 3000,
+  socketPort: env.SOCKET_PORT || 8080,
 
   database: {
     url: env.DATABASE_URL,

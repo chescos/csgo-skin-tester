@@ -8,6 +8,13 @@ class ErrorResponse {
     };
   }
 
+  static unsupportedSkin() {
+    return {
+      id: 'UNSUPPORTED_SKIN',
+      message: 'This skin is currently not supported.',
+    };
+  }
+
   static notFound() {
     return {
       id: 'NOT_FOUND',

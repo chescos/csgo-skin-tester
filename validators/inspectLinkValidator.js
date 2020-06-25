@@ -6,4 +6,9 @@ exports.store = validate([
     .exists()
     .isString()
     .isLength({ min: 1, max: 5000 }),
+
+  body('ip')
+    .optional()
+    .isString()
+    .isLength({ min: 1, max: 5000 }),
 ]);

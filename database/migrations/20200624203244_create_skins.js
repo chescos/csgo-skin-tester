@@ -2,7 +2,7 @@ exports.up = async (knex) => {
   await knex.schema.createTable('skins', (table) => {
     table.increments('id');
     table.integer('item_id').notNullable().index();
-    table.integer('paintkit_id').nullable().index();
+    table.integer('paintkit_id').notNullable().index();
     table.string('name').notNullable().index();
     table.string('name_technical').notNullable().unique();
     table.string('image_url').notNullable();
