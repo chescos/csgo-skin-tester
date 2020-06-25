@@ -57,6 +57,8 @@ exports.store = async (req, res) => {
     item_class: skin.item.class,
     item_name_technical: skin.item.name_technical,
     item_type: skin.item.type,
+    wear: inspection.paintwear,
+    seed: inspection.paintseed,
   };
 
   gameServer.sendSkin(data);
