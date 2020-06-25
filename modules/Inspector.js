@@ -1,16 +1,25 @@
+const config = require('config');
 const SteamUser = require('steam-user');
 const GlobalOffensive = require('globaloffensive');
 const SteamTotp = require('steam-totp');
 const _ = require('lodash');
 const logger = require('./Logger');
+const Encryption = require('./Encryption');
 
-// TODO: Add this to a config or to a database and encrypt it.
-const accounts = [];
+const accounts = config.get('steam.accounts').map((account) => ({
+  username: account.username,
+  password: Encryption.decrypt(account.password),
+  sharedSecret: Encryption.decrypt(account.sharedSecret),
+}));
 
 const clients = [];
 
 accounts.forEach((account) => {
-  const client = new SteamUser();
+  const client = new SteamUser({
+    // This is necessary for `ownsApp` to work.
+    enablePicsCache: true,
+  });
+
   const csgo = new GlobalOffensive(client);
 
   client.logOn({
@@ -23,6 +32,23 @@ accounts.forEach((account) => {
     logger.info(`Logged into Steam as ${client.steamID.getSteam3RenderedID()}`);
     client.setPersona(SteamUser.EPersonaState.Online);
     client.gamesPlayed(730, true);
+  });
+
+  client.on('appOwnershipCached', () => {
+    // If the account does not own CS:GO yet, claim the free license first.
+    // This is necessary to connect to the game coordinator via `gamesPlayed`,
+    // and `gamesPlayed` is necessary to inspect skins.
+    if (!client.ownsApp(730)) {
+      client.requestFreeLicense(730, (err) => {
+        if (err) {
+          logger.warn('Failed to acquire lisence for CS:GO');
+          logger.error(err);
+        } else {
+          logger.info('Successfully acquired license for CS:GO');
+          client.gamesPlayed(730, true);
+        }
+      });
+    }
   });
 
   client.on('error', (e) => {
