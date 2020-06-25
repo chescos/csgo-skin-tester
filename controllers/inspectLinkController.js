@@ -61,9 +61,14 @@ exports.store = async (req, res) => {
     seed: inspection.paintseed,
   };
 
-  gameServer.sendSkin(data);
-
   const isPlayerConnected = gameServer.isPlayerConnected(ip);
+
+  if (isPlayerConnected) {
+    gameServer.sendSkin(data);
+  } else {
+    gameServer.queueSkin(data);
+  }
+
   const availableServer = gameServer.getAvailableServer();
 
   return res.status(201).json({

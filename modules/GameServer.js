@@ -8,6 +8,7 @@ const logger = require('./Logger');
 class GameServer {
   constructor() {
     this.sockets = {};
+    this.queue = {};
 
     // Create a nssocket TCP server.
     this.server = nssocket.createServer((socket) => {
@@ -26,10 +27,9 @@ class GameServer {
       socket.on('close', (hadError) => {
         logger.info('close event', { hadError });
 
-        // Socket has an identifier and the identifier is in the sockets list.
-        if (socket.identifier && this.sockets[socket.identifier]) {
-          delete this.sockets[socket.identifier];
-          logger.info(`Removed ${socket.identifier} from list`);
+        if (this.isSocketRegistered(socket)) {
+          delete this.sockets[socket.gameServer.address];
+          logger.info(`Removed ${socket.gameServer.address} from list`);
         }
       });
 
@@ -41,49 +41,57 @@ class GameServer {
         logger.info('idle event');
       });
 
-      // Here, `socket` is an instance of `nssocket.NsSocket`.
-      socket.on(['data', 'server-data'], (data) => {
+      // This event is emitted when the server initially connects, and then every 10 seconds.
+      // We use it to update the server data, especially the currently connected players (IPs).
+      socket.on(['data', 'server-heartbeat'], (data) => {
         // Good! The socket speaks our language, (i.e. simple 'you::there', 'iam::here' protocol).
-        logger.info('Received server-data event from socket', data);
+        logger.info('Received server-heartbeat event from socket', data);
 
         const address = `${data.ip}:${data.port}`;
 
-        if (!this.sockets[address]) {
-          socket.serverData = {
-            address,
-            ip: data.ip,
-            port: data.port,
-            slots: data.slots,
-          };
+        socket.gameServer = {
+          address,
+          ip: data.ip,
+          port: data.port,
+          slots: data.slots,
+          players: data.players,
+          updatedAt: Date.now(),
+        };
 
-          socket.players = [];
-
-          this.sockets[address] = socket;
-
-          logger.info('Added socket to list');
-        }
+        this.sockets[address] = socket;
       });
 
-      socket.on(['data', 'player-connected'], (data) => {
-        logger.info('Received player-connected event from socket', data);
+      // This event is emitted when a player spawns in the server.
+      // We use it to send queued skins to the player, if there are any for his IP.
+      socket.on(['data', 'player-spawned'], (data) => {
+        logger.info('Received player-spawned event from socket', data);
 
-        if (!socket.players) {
-          socket.players = [];
+        if (this.isSocketRegistered(socket) && this.queue[data.ip]) {
+          this.sendSkin(this.queue[data.ip].data);
+          delete this.queue[data.ip];
+          logger.info(`Sent queued skin to ${data.ip}`);
         }
-
-        socket.players.push(data.ip);
-      });
-
-      socket.on(['data', 'player-disconnected'], (data) => {
-        logger.info('Received player-disconnected event from socket', data);
-
-        if (!socket.players) {
-          socket.players = [];
-        }
-
-        _.remove(socket.players, (ip) => ip === data.ip);
       });
     });
+
+    // Remove old game servers and queued skins.
+    setTimeout(() => {
+      _.forEach(this.sockets, (socket, address) => {
+        // The game server hasn't been updated in 60 seconds, remove it.
+        if (socket.gameServer.updatedAt < Date.now() - 60000) {
+          delete this.sockets[address];
+          logger.info(`Removed unresponsive game server ${address}`);
+        }
+      });
+
+      _.forEach(this.queue, (item, ip) => {
+        // The queue item is older than 600 seconds, remove it.
+        if (item.createdAt < Date.now() - 600000) {
+          delete this.queue[ip];
+          logger.info(`Removed queue item from ${ip}`);
+        }
+      });
+    }, 60000);
 
     const port = config.get('socketPort');
 
@@ -99,10 +107,17 @@ class GameServer {
     });
   }
 
+  queueSkin(data) {
+    this.queue[data.ip] = {
+      data,
+      createdAt: Date.now(),
+    };
+  }
+
   isPlayerConnected(ip) {
     return _.some(
       this.sockets,
-      (socket) => socket.players.includes(ip),
+      (socket) => socket.gameServer.players.includes(ip),
     );
   }
 
@@ -110,11 +125,16 @@ class GameServer {
     return _.get(
       _.find(
         this.sockets,
-        (socket) => socket.serverData.slots > socket.players.length,
+        (socket) => socket.gameServer.slots > socket.gameServer.players.length,
       ),
-      'serverData.address',
+      'gameServer.address',
       null,
     );
+  }
+
+  isSocketRegistered(socket) {
+    return !_.isUndefined(socket.gameServer)
+      && !_.isUndefined(this.sockets[socket.gameServer.address]);
   }
 }
 
