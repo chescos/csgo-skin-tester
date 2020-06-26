@@ -4,7 +4,9 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "migrate": "npx knex migrate:latest",
+    "skins:update": "node cmd skins:update"
   },
   "author": "",
   "license": "ISC",
