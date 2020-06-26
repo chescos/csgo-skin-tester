@@ -1,5 +1,3 @@
 const cors = require('cors');
 
-module.exports = cors({
-  origin: true,
-});
+module.exports = cors();
