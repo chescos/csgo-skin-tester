@@ -14,6 +14,10 @@ const port = config.get('webPort');
 app.use(require('./middlewares/bodyParserJson'));
 app.use(require('./middlewares/bodyParserUrlencoded'));
 
+// Configure cross-origin resource sharing (CORS).
+// Allows CORS to from all origins.
+app.use(require('./middlewares/cors'));
+
 // Load all API routes.
 const inspectLinkRoute = require('./routes/inspectLinkRoute');
 
