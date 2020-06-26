@@ -63,7 +63,9 @@ exports.store = async (req, res) => {
     item_type: skin.item.type,
     wear: inspection.paintwear,
     seed: inspection.paintseed,
-    stattrak: inspection.killeaterscoretype === 0 && inspection.killeatervalue !== null,
+    stattrak: inspection.killeaterscoretype === 0 && inspection.killeatervalue !== null
+      ? inspection.killeatervalue
+      : -1,
   };
 
   const isPlayerConnected = gameServer.isPlayerConnected(ip);
