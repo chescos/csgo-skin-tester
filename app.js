@@ -9,6 +9,9 @@ const logger = require('./modules/Logger');
 const app = express();
 const port = config.get('webPort');
 
+// Trust all proxies, this is required for `req.ip` to work properly with Cloudflare.
+app.set('trust proxy', true);
+
 // Parse the HTTP message body for input parameters.
 // Any parameters that are found will be added to `req.body`.
 app.use(require('./middlewares/bodyParserJson'));
