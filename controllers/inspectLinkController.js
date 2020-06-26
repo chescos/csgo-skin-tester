@@ -53,7 +53,7 @@ exports.store = async (req, res) => {
   }
 
   const data = {
-    ip: ip,
+    ip,
     paintkit_name: skin.paintkit.name,
     paintkit_defindex: skin.paintkit.defindex,
     item_name: skin.item.name,
