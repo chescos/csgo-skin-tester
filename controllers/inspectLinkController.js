@@ -84,5 +84,6 @@ exports.store = async (req, res) => {
     success: true,
     needs_to_connect: !isPlayerConnected,
     connect_to_server: isPlayerConnected ? null : availableServer,
+    connect_to_url: isPlayerConnected ? null : `steam://connect/${availableServer}`,
   });
 };
