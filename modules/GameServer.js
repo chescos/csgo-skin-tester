@@ -75,10 +75,11 @@ class GameServer {
     });
 
     // Remove old game servers and queued skins.
-    setTimeout(() => {
+    setInterval(() => {
+      console.log(this.sockets);
       _.forEach(this.sockets, (socket, address) => {
-        // The game server hasn't been updated in 60 seconds, remove it.
-        if (socket.gameServer.updatedAt < Date.now() - 60000) {
+        // The game server hasn't been updated in 30 seconds, remove it.
+        if (socket.gameServer.updatedAt < Date.now() - 30000) {
           delete this.sockets[address];
           logger.info(`Removed unresponsive game server ${address}`);
         }
@@ -91,7 +92,7 @@ class GameServer {
           logger.info(`Removed queue item from ${ip}`);
         }
       });
-    }, 60000);
+    }, 10000);
 
     const port = config.get('socketPort');
 
