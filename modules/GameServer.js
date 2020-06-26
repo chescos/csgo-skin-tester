@@ -76,7 +76,6 @@ class GameServer {
 
     // Remove old game servers and queued skins.
     setInterval(() => {
-      console.log(this.sockets);
       _.forEach(this.sockets, (socket, address) => {
         // The game server hasn't been updated in 30 seconds, remove it.
         if (socket.gameServer.updatedAt < Date.now() - 30000) {
