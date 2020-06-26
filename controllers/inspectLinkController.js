@@ -26,6 +26,8 @@ exports.store = async (req, res) => {
   }
 
   if (inspection.defindex === null || inspection.paintindex === null) {
+    logger.info('Skin has no item defindex or paintkit defindex, abort');
+
     return res.status(400).json(ErrorResponse.unsupportedSkin());
   }
 
@@ -45,11 +47,13 @@ exports.store = async (req, res) => {
     .first();
 
   if (!skin) {
+    logger.info('Skin does not exist in database, abort');
+
     return res.status(400).json(ErrorResponse.unsupportedSkin());
   }
 
   const data = {
-    ip_address: ip || req.ip,
+    ip: ip || req.ip,
     paintkit_name: skin.paintkit.name,
     paintkit_defindex: skin.paintkit.defindex,
     item_name: skin.item.name,
@@ -65,8 +69,10 @@ exports.store = async (req, res) => {
 
   if (isPlayerConnected) {
     gameServer.sendSkin(data);
+    logger.info('Sent skin', data);
   } else {
     gameServer.queueSkin(data);
+    logger.info('Queued skin', data);
   }
 
   const availableServer = gameServer.getAvailableServer();
