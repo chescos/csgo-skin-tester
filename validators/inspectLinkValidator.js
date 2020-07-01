@@ -1,14 +1,22 @@
 const { body } = require('express-validator');
 const validate = require('../middlewares/validateInput');
 
+const inspectLinkRegex = /^steam:\/\/rungame\/730\/(?:[0-9]+)\/\+csgo_econ_action_preview/;
+
 exports.store = validate([
   body('link')
     .exists()
     .isString()
-    .isLength({ min: 1, max: 5000 }),
+    .custom((value) => {
+      if (!inspectLinkRegex.test(value)) {
+        throw new Error('The given inspect link is invalid.');
+      }
+
+      return true;
+    }),
 
   body('ip')
     .optional()
     .isString()
-    .isLength({ min: 1, max: 5000 }),
+    .isIP(4),
 ]);
