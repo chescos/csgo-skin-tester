@@ -70,6 +70,15 @@ exports.store = async (req, res) => {
   };
 
   const isPlayerConnected = gameServer.isPlayerConnected(ip);
+  const availableServer = gameServer.getAvailableServer();
+
+  const allServersFull = !isPlayerConnected
+    && availableServer === null
+    && config.get('env') === 'production';
+
+  if (allServersFull) {
+    return res.status(500).json(ErrorResponse.allServersFull());
+  }
 
   if (isPlayerConnected) {
     gameServer.sendSkin(data);
@@ -78,8 +87,6 @@ exports.store = async (req, res) => {
     gameServer.queueSkin(data);
     logger.info('Queued skin', data);
   }
-
-  const availableServer = gameServer.getAvailableServer();
 
   return res.status(201).json({
     success: true,

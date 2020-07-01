@@ -15,6 +15,13 @@ class ErrorResponse {
     };
   }
 
+  static allServersFull() {
+    return {
+      id: 'ALL_SERVERS_FULL',
+      message: 'Sorry, all of our CS:GO test servers are currently full. Please try again later.',
+    };
+  }
+
   static notFound() {
     return {
       id: 'NOT_FOUND',
