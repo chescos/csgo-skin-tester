@@ -9,7 +9,7 @@ exports.store = validate([
     .isString()
     .custom((value) => {
       if (!inspectLinkRegex.test(value)) {
-        throw new Error('The given inspect link is invalid.');
+        throw new Error('Whoops, looks like the given inspect link is invalid.');
       }
 
       return true;

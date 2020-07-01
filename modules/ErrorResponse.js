@@ -11,7 +11,7 @@ class ErrorResponse {
   static unsupportedSkin() {
     return {
       id: 'UNSUPPORTED_SKIN',
-      message: 'This skin is currently not supported.',
+      message: 'Sorry but this skin is currently not supported.',
     };
   }
 
@@ -32,7 +32,7 @@ class ErrorResponse {
   static serverError() {
     return {
       id: 'SERVER_ERROR',
-      message: 'An unexpected server error occurred.',
+      message: 'Ouch! An unexpected server error occurred.',
     };
   }
 
@@ -41,7 +41,7 @@ class ErrorResponse {
 
     return {
       id: 'VALIDATION_ERROR',
-      message: `Parameter "${firstError.param}" failed validation: "${firstError.msg}"`,
+      message: firstError.msg,
     };
   }
 }
