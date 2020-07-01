@@ -1,3 +1,4 @@
+const config = require('config');
 const Inspector = require('../modules/Inspector');
 const ErrorResponse = require('../modules/ErrorResponse');
 const logger = require('../modules/Logger');
@@ -15,7 +16,7 @@ exports.store = async (req, res) => {
   let inspection;
 
   try {
-    inspection = await Inspector.inspect(link, 5000);
+    inspection = await Inspector.inspect(link, config.get('inspect.timeoutMs'));
 
     logger.info('Inspected link', inspection);
   } catch (error) {

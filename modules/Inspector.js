@@ -81,7 +81,7 @@ class Inspector {
     return clients;
   }
 
-  static inspect(url, timeoutMs = 5000) {
+  static inspect(url, timeoutMs = 3000) {
     return new Promise((resolve, reject) => {
       const client = _.sample(_.filter(clients, ((x) => x.csgo.haveGCSession)));
 

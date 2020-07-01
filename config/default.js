@@ -13,8 +13,8 @@ module.exports = {
     url: env.DATABASE_URL,
     ssl: env.DATABASE_SSL === 'true',
     debug: env.DATABASE_DEBUG === 'true',
-    queryTimeout: env.DYNO && env.DYNO.startsWith('web.') ? 20000 : 300000,
-    transactionTimeout: env.DYNO && env.DYNO.startsWith('web.') ? 20000 : 60000,
+    queryTimeout: 20000,
+    transactionTimeout: 20000,
     connections: {
       min: parseInt(env.DATABASE_MIN_CONNECTIONS, 10) || 10,
       max: parseInt(env.DATABASE_MAX_CONNECTIONS, 10) || 100,
@@ -50,5 +50,9 @@ module.exports = {
         sharedSecret: 'e0c5bbaf5f6a330b4135592b5cd60aa2:97ce5e245e82c900d6fcc65158eabc09e98c50275463e7e5daea3525',
       },
     ],
+  },
+
+  inspect: {
+    timeoutMs: env.INSPECT_TIMEOUT_MS || 3000,
   },
 };
