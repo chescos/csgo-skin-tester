@@ -43,6 +43,7 @@ class Inspector {
       accountName: username,
       password,
       twoFactorCode: SteamTotp.getAuthCode(sharedSecret),
+      autoRelogin: true,
     });
 
     client.on('loggedOn', () => {
@@ -72,6 +73,14 @@ class Inspector {
       // Some error occurred during logon
       logger.error('Client error');
       logger.error(e);
+    });
+
+    client.on('disconnected', (eresult, msg) => {
+      // We got disconnected from Steam.
+      logger.error('Disconnected', {
+        eresult,
+        msg,
+      });
     });
 
     client.on('webSession', () => {
