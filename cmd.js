@@ -9,9 +9,14 @@ const commands = [
     file: 'skins/update',
   },
   {
-    name: 'accounts:encrypt',
-    description: 'Encrypt the password and shared secret of a Steam account.',
-    file: 'accounts/encrypt',
+    name: 'account:create',
+    description: 'Add a new Steam account to the database.',
+    file: 'account/create',
+  },
+  {
+    name: 'account:destroy',
+    description: 'Remove an existing Steam account from the database.',
+    file: 'account/destroy',
   },
 ];
 
