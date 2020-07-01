@@ -77,7 +77,7 @@ class Inspector {
 
     client.on('disconnected', (eresult, msg) => {
       // We got disconnected from Steam.
-      logger.error('Disconnected', {
+      logger.warn('Disconnected from Steam', {
         eresult,
         msg,
       });
@@ -90,6 +90,10 @@ class Inspector {
 
     csgo.on('connectedToGC', () => {
       logger.info('Connected to CS:GO game coordinator');
+    });
+
+    csgo.on('disconnectedFromGC', (reason) => {
+      logger.warn('Disconnected from CS:GO game coordinator', { reason });
     });
 
     csgo.on('inspectItemTimedOut', (assetid) => {
