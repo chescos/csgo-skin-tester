@@ -12,6 +12,24 @@ This works by providing an inspect link for the desired skin.
 5. Run `npm run skins:update` to parse all skins and insert them into the database
 6. Run `npm run start` to start the app
 
+## Setup
+
+This app requires at least one Steam account in order to extract data from the CS:GO inspect links through the Steam API. Each Steam account can only inspect one skin at a time, so if you have some traffic then you might consider to add more than just one Steam account. The more Steam accounts, the more concurrent requests the app can serve.
+
+You can add new Steam accounts to the database through the `node cmd account:create` command. Here's an example:
+
+```
+node cmd account:create --user user123 --password password123 --secret secret123
+```
+
+The `user` argument is the Steam username, the `password` argument is the account password, and the `secret` is the shared secret which is required to login through 2FA.
+
+If you want to want to remove a Steam account from the database, simply use this command:
+
+```
+node cmd account:destroy --user user123
+```
+
 ## Environment Variables
 
 |Variable|Type|Default|Description|
@@ -71,11 +89,11 @@ Here's a full list of all errors:
 
 ##### Description
 
-This endpoint sends a skin to a player on the CS:GO game server based on a provided inspect link. If the player is already connected to the CS:GO server, he will immediately be equipped with the skin. If the player is not connected to the CS:GO server yet, this endpoint will return a URL that the player can be connected to via Javascript (e.g `window.location`).
+This endpoint sends a skin to a player on the CS:GO game server based on a provided inspect link. If the player is already connected to the CS:GO server, he will be immediately equipped with the skin. If the player is not connected to the CS:GO server yet, this endpoint will return a URL that the player can be connected to via Javascript (e.g `window.location`).
 
 ##### Response Examples
 
-Here's an example response that occurs when the player is not connected to the server yet. On the client side, you should always check for the `needs_to_connect` property and if it is `true`, then use the `connect_to_url` to connect the player to the CS:GO server. This can be done by visiting the URL in the browser, e.g through `window.location`. After the user connects to the server, he will be automatically be equipped with the skin.
+Here's an example response that occurs when the player is not connected to the server yet. On the client side, you should always check for the `needs_to_connect` property and if it is `true`, then use the `connect_to_url` to connect the player to the CS:GO server. This can be done by visiting the URL in the browser, e.g through `window.location`. After the user connects to the server, he will be automatically equipped with the skin.
 
 ```json
 {
