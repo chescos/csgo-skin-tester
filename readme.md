@@ -14,6 +14,15 @@ This works by providing an inspect link for the desired skin.
 
 ## Setup
 
+### Install the SourceMod Plugin on your CS:GO server
+
+In order to work, this application needs a CS:GO server that connects to it through a socket. You need to install the CS:GO Skin Tester [SourceMod Plugin](https://github.com/chescos/csgo-skin-tester-sm) for that. Detailed instructions for the installation can be found in the readme of the repository.
+
+Note that you can add the plugin to multiple CS:GO servers, and you can connect the plugin of each server to the same web app. This way, you can have one web app that works with any number of CS:GO servers.
+
+
+### Add Steam Accounts
+
 This app requires at least one Steam account in order to extract data from the CS:GO inspect links through the Steam API. Each Steam account can only inspect one skin at a time, so if you have some traffic then you might consider to add more than just one Steam account. The more Steam accounts, the more concurrent requests the app can serve.
 
 You can add new Steam accounts to the database through the `node cmd account:create` command. Here's an example:
@@ -28,6 +37,29 @@ If you want to want to remove a Steam account from the database, simply use this
 
 ```
 node cmd account:destroy --user user123
+```
+
+### Disable IPv6
+
+You should disable support for IPv6 requests when hosting this web app. The reason is that players are identified by their IP address, and CS:GO servers only support IPv4. So the player will have an IPv4 address on the CS:GO server, and if he makes a request to the web app through IPv6, then he won't be identified correctly on the CS:GO server.
+
+If you're using Cloudflare, you can disable IPv6 through an [API call](https://api.cloudflare.com/#zone-settings-change-ipv6-setting). First, get the ID of the zone (domain) that you want to disable IPv6 for:
+
+```bash
+curl -X GET "https://api.cloudflare.com/client/v4/zones" \
+     -H "X-Auth-Email: <userEmail>" \
+     -H "X-Auth-Key: <apiKey>" \
+     -H "Content-Type: application/json"
+```
+
+And then disable IPv6 for your zone:
+
+```bash
+curl -X PATCH "https://api.cloudflare.com/client/v4/zones/<zoneId>/settings/ipv6" \
+     -H "X-Auth-Email: <userEmail>" \
+     -H "X-Auth-Key: <apiKey>" \
+     -H "Content-Type: application/json" \
+     --data '{"value":"off"}'
 ```
 
 ## Environment Variables
