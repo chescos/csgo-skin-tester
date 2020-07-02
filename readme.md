@@ -11,3 +11,14 @@ This works by providing an inspect link for the desired skin.
 4. Run `npm run migrate` to run all database migrations
 5. Run `npm run skins:update` to parse all skins and insert them into the database
 6. Run `npm run start` to start the app
+
+## Software Suite
+
+The CS:GO Skin Tester backend works in conjunction with a set of related tools. At least the SourceMod plugin for the CS:GO server is required to make it work.
+
+- [NodeJS Backend](https://github.com/chescos/csgo-skin-tester) (this repository)
+- [SourceMod Plugin](https://github.com/chescos/csgo-skin-tester-sm)
+- [Frontend](https://github.com/chescos/csgo-skin-tester-frontend)
+- [Chrome Extension](https://github.com/chescos/csgo-skin-tester-extension)
+
+
