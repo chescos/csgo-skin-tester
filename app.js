@@ -23,9 +23,15 @@ app.use(require('./middlewares/cors'));
 
 // Load all API routes.
 const inspectLinkRoute = require('./routes/inspectLinkRoute');
+const itemRoute = require('./routes/itemRoute');
+const paintkitRoute = require('./routes/paintkitRoute');
+const skinRoute = require('./routes/skinRoute');
 
 // Register the API routes.
 app.use('/inspect-links', inspectLinkRoute);
+app.use('/items', itemRoute);
+app.use('/paintkits', paintkitRoute);
+app.use('/skins', skinRoute);
 
 // Use a 404 handler for all requests where no Express route was found.
 app.use('*', require('./middlewares/notFoundHandler'));

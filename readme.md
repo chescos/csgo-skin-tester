@@ -147,6 +147,141 @@ If the player is already connected to the server, no action is needed. He will b
 }
 ```
 
+#### List all items
+
+##### Endpoint
+
+`GET /items`
+
+##### Description
+
+This endpoint lists all CS:GO items for which skins are available.
+
+##### Response Examples
+
+Here's an example response:
+
+```json
+{
+  "items": [
+    {
+      "id": 8,
+      "name": "AK-47",
+      "name_technical": "weapon_ak47",
+      "defindex": 7,
+      "image_url": "https://steamcdn-a.akamaihd.net/apps/730/icons/econ/weapons/base_weapons/weapon_ak47.a320f13fea4f21d1eb3b46678d6b12e97cbd1052.png",
+      "class": "weapon_ak47",
+      "type": "Rifle"
+    },
+    {
+      "id": 9,
+      "name": "AUG",
+      "name_technical": "weapon_aug",
+      "defindex": 8,
+      "image_url": "https://steamcdn-a.akamaihd.net/apps/730/icons/econ/weapons/base_weapons/weapon_aug.6b97a75aa4c0dbb61d81efb6d5497b079b67d0da.png",
+      "class": "weapon_aug",
+      "type": "Rifle"
+    }
+  ]
+}
+```
+
+#### List all paintkits
+
+##### Endpoint
+
+`GET /paintkits`
+
+##### Description
+
+This endpoint lists all available paintkits.
+
+##### Response Examples
+
+Here's an example response:
+
+```json
+{
+  "paintkits": [
+    {
+      "id": 1,
+      "name": "Spruce DDPAT",
+      "name_technical": "handwrap_camo_grey",
+      "defindex": 10010
+    },
+    {
+      "id": 2,
+      "name": "Badlands",
+      "name_technical": "handwrap_fabric_orange_camo",
+      "defindex": 10036
+    }
+  ]
+}
+```
+
+#### List all skins
+
+##### Endpoint
+
+`GET /skins`
+
+##### Description
+
+This endpoint lists all available skins.
+
+##### Response Examples
+
+Here's an example response:
+
+```json
+{
+  "skins": [
+    {
+      "id": 1,
+      "name": "Hand Wraps | Spruce DDPAT",
+      "name_technical": "leather_handwraps_handwrap_camo_grey",
+      "image_url": "https://steamcdn-a.akamaihd.net/apps/730/icons/econ/default_generated/leather_handwraps_handwrap_camo_grey_light_large.04557b1a8d68bccdd60b18521346091328756ded.png",
+      "item": {
+        "id": 1,
+        "name": "Hand Wraps",
+        "name_technical": "leather_handwraps",
+        "defindex": 5032,
+        "image_url": "",
+        "class": "wearable_item",
+        "type": "Gloves"
+      },
+      "paintkit": {
+        "id": 1,
+        "name": "Spruce DDPAT",
+        "name_technical": "handwrap_camo_grey",
+        "defindex": 10010
+      }
+    },
+    {
+      "id": 2,
+      "name": "Hand Wraps | Badlands",
+      "name_technical": "leather_handwraps_handwrap_fabric_orange_camo",
+      "image_url": "https://steamcdn-a.akamaihd.net/apps/730/icons/econ/default_generated/leather_handwraps_handwrap_fabric_orange_camo_light_large.f8453c60f74a846bd3c05310de4f004cd95a1aa2.png",
+      "item": {
+        "id": 1,
+        "name": "Hand Wraps",
+        "name_technical": "leather_handwraps",
+        "defindex": 5032,
+        "image_url": "",
+        "class": "wearable_item",
+        "type": "Gloves"
+      },
+      "paintkit": {
+        "id": 2,
+        "name": "Badlands",
+        "name_technical": "handwrap_fabric_orange_camo",
+        "defindex": 10036
+      }
+    }
+  ]
+}
+```
+
 ## Software Suite
 
 The CS:GO Skin Tester backend works in conjunction with a set of related tools. At least the SourceMod plugin for the CS:GO server is required to make it work.
