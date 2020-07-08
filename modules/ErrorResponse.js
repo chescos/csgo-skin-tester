@@ -1,5 +1,3 @@
-const _ = require('lodash');
-
 class ErrorResponse {
   static inspectionFailed() {
     return {
@@ -36,12 +34,10 @@ class ErrorResponse {
     };
   }
 
-  static validationError(error) {
-    const firstError = _.first(error.array());
-
+  static validationError(message) {
     return {
       id: 'VALIDATION_ERROR',
-      message: firstError.msg,
+      message,
     };
   }
 }

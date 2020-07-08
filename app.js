@@ -22,13 +22,18 @@ app.use(require('./middlewares/bodyParserUrlencoded'));
 app.use(require('./middlewares/cors'));
 
 // Load all API routes.
-const inspectLinkRoute = require('./routes/inspectLinkRoute');
+const testLinkRoute = require('./routes/testLinkRoute');
+const testIdRoute = require('./routes/testIdRoute');
+const testNameRoute = require('./routes/testNameRoute');
 const itemRoute = require('./routes/itemRoute');
 const paintkitRoute = require('./routes/paintkitRoute');
 const skinRoute = require('./routes/skinRoute');
 
 // Register the API routes.
-app.use('/inspect-links', inspectLinkRoute);
+app.use('/inspect-links', testLinkRoute);
+app.use('/tests/link', testLinkRoute);
+app.use('/tests/id', testIdRoute);
+app.use('/tests/name', testNameRoute);
 app.use('/items', itemRoute);
 app.use('/paintkits', paintkitRoute);
 app.use('/skins', skinRoute);

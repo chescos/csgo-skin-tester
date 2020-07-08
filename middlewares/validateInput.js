@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const { validationResult } = require('express-validator');
 const ErrorResponse = require('../modules/ErrorResponse');
 const logger = require('../modules/Logger');
@@ -11,6 +12,8 @@ module.exports = (validations) => async (req, res, next) => {
     return next();
   }
 
+  const errorsArray = errors.array();
+
   logger.warn('Input validation failed', {
     url: req.originalUrl,
     method: req.method,
@@ -23,8 +26,10 @@ module.exports = (validations) => async (req, res, next) => {
       ip: req.ip,
       userAgent: req.headers['user-agent'],
     },
-    errors: errors.array(),
+    errors: errorsArray,
   });
 
-  return res.status(400).json(ErrorResponse.validationError(errors));
+  return res.status(400).json(ErrorResponse.validationError(
+    _.get(errorsArray, '0.msg', 'Invalid input data'),
+  ));
 };
