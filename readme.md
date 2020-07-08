@@ -116,7 +116,7 @@ Here's a full list of all errors:
 
 |Parameter|Type|Required|Description|
 |-|-|-|-|
-|link|string|Yes|The CS:GO inspect link of the skin that the player should be equipped with.
+|link|string|Yes|The inspect link of the CS:GO skin that the player should be equipped with.
 |ip|string|No|The IP address of the player that the skin should be sent to. If this is ommitted, the IP address of the client that makes the request is used.|
 
 ##### Description
@@ -158,13 +158,13 @@ If the player is already connected to the server, no action is needed. He will b
 |Parameter|Type|Required|Description|
 |-|-|-|-|
 |market_hash_name|string|Yes|The `market_hash_name` of the CS:GO skin that the player should be equipped with.
-|seed|integer|No|The seed (also called pattern ID) that should be used for the skin. This must be a number between 1 and 1000. This can be used to apply a special version of a Fade or Case Hardened skin.
+|seed|integer|No|The seed (also called pattern ID) that should be used for the skin. This must be a number between `1` and `1000`. This can be used to apply a special version of a Fade or Case Hardened skin.
 |paintkit|integer|No|The paintkit index (also called finish catalog) that should be used for the skin. This can be used to apply a certain phase for a Doppler or Gamma Doppler.
 |ip|string|No|The IP address of the player that the skin should be sent to. If this is ommitted, the IP address of the client that makes the request is used.|
 
 ##### Description
 
-See the description of [Send skin to player through inspect link](#send-skin-to-player-through-inspect-link).
+This endpoint sends a skin to a player on the CS:GO game server based on a provided `market_hash_name`. See the description of [Send skin to player through inspect link](#send-skin-to-player-through-inspect-link) for more details.
 
 ##### Response Examples
 
@@ -182,13 +182,13 @@ See the response examples of [Send skin to player through inspect link](#send-sk
 |-|-|-|-|
 |skin_id|integer|Yes|The `id` of the CS:GO skin that the player should be equipped with.
 |wear|float|No|The wear value that should be applied to the skin. Must be between `0.00000000000000001` and `0.99999999999999999`.
-|seed|integer|No|The seed (also called pattern ID) that should be used for the skin. This must be a number between 1 and 1000. This can be used to apply a special version of a Fade or Case Hardened skin.
+|seed|integer|No|The seed (also called pattern ID) that should be used for the skin. This must be a number between `1` and `1000`. This can be used to apply a special version of a Fade or Case Hardened skin.
 |stattrak|integer|no|The StatTrak™ kill count that should be applied to the skin.
 |ip|string|No|The IP address of the player that the skin should be sent to. If this is ommitted, the IP address of the client that makes the request is used.|
 
 ##### Description
 
-See the description of [Send skin to player through inspect link](#send-skin-to-player-through-inspect-link).
+This endpoint sends a skin to a player on the CS:GO game server based on a provided skin `id`. See the description of [Send skin to player through inspect link](#send-skin-to-player-through-inspect-link) for more details.
 
 ##### Response Examples
 
