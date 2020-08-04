@@ -104,13 +104,16 @@ const sources = {
       }
     });
 
+    const skinImageUrl = image.replace('http://media.steampowered.com', 'https://steamcdn-a.akamaihd.net');
+
     const res = {
       name_technical: name,
-      image_url: image.replace('http://media.steampowered.com', 'https://steamcdn-a.akamaihd.net'),
+      image_url: skinImageUrl,
       item: {
         name_technical: matchingItem.name,
         defindex: matchingItem.defindex,
-        image_url: matchingItem.image_url,
+        // Gloves have no item image, use the skin image instead.
+        image_url: matchingItem.image_url || skinImageUrl,
         class: matchingItem.item_class,
         name: getTranslation(matchingItem.item_name),
         type: getTranslation(matchingItem.item_type_name),
