@@ -13,7 +13,7 @@ class Parser {
 
   static get wears() {
     return {
-      'Factory New': { min: 0.00, max: 0.07 },
+      'Factory New': { min: 0.01, max: 0.07 },
       'Minimal Wear': { min: 0.07, max: 0.15 },
       'Field-Tested': { min: 0.15, max: 0.37 },
       'Well-Worn': { min: 0.37, max: 0.44 },
