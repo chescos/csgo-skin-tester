@@ -34,7 +34,7 @@ class Parser {
 
   static marketHashNameToWear(marketHashName) {
     return _.get(
-      this.wear,
+      this.wears,
       [this.marketHashNameToExterior(marketHashName), 'min'],
     );
   }
