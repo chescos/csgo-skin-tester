@@ -27,7 +27,7 @@ exports.store = async (req, res) => {
       paintkit: true,
     });
 
-  if (seed) {
+  if (paintkit) {
     query.whereExists(
       Skin.relatedQuery('paintkit')
         .where('defindex', paintkit),
