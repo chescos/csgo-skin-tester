@@ -8,6 +8,15 @@ const SteamAccount = require('../database/models/SteamAccount');
 
 class Inspector {
   constructor() {
+    // The time in milliseconds between two inspection attempts.
+    this.inspectionInterval = 1100;
+    // The time in milliseconds after which an inspection is considered a failure.
+    this.inspectionTimeout = 3000;
+    // The time in milliseconds between two select attempts.
+    this.selectInterval = 100;
+    // The time in milliseconds after which selecting a non-busy bot is considered a failure.
+    this.selectTimeout = 5000;
+
     this.clients = [];
 
     SteamAccount.query().then((steamAccounts) => {
@@ -21,14 +30,28 @@ class Inspector {
     });
 
     setInterval(() => {
+      const gracePeriod = this.inspectionTimeout + 1000;
+
       for (let i = 0; i < this.clients.length; i += 1) {
-        // Mark clients as not busy if they have been busy for more than 10 seconds.
-        if (this.clients[i].busySince && Date.now() > (this.clients[i].busySince + 10000)) {
-          this.clients[i].busySince = null;
-          logger.info(`Marked client ${i} as not busy after 10 second timeout`);
+        // Mark clients as not busy if they have been busy for too long.
+        if (this.clients[i].busy && Date.now() > (this.clients[i].startedAt + gracePeriod)) {
+          this.clients[i].busy = false;
+          logger.info(`Marked client ${i} as not busy after ${gracePeriod} ms timeout`);
         }
       }
     }, 1000);
+
+    setInterval(() => {
+      logger.info('Inspector bot status', {
+        total: this.clients.length,
+        connectedToSteam: this.clients.filter((client) => !!client.client.steamID).length,
+        connectedToCsgo: this.clients.filter((client) => client.csgo.haveGCSession).length,
+        busy: this.clients.filter((client) => client.busy === true).length,
+        busyCooldown: this.clients.filter(
+          (client) => client.startedAt + this.inspectionInterval >= Date.now(),
+        ).length,
+      });
+    }, 10000);
   }
 
   addClient(username, password, sharedSecret) {
@@ -47,7 +70,7 @@ class Inspector {
     });
 
     client.on('loggedOn', () => {
-      logger.info(`Logged into Steam as ${client.steamID.getSteam3RenderedID()}`);
+      logger.info(`Logged into Steam as ${client.steamID.getSteamID64()}`);
       client.setPersona(SteamUser.EPersonaState.Online);
       client.gamesPlayed(730, true);
     });
@@ -59,7 +82,7 @@ class Inspector {
       if (!client.ownsApp(730)) {
         client.requestFreeLicense(730, (err) => {
           if (err) {
-            logger.warn('Failed to acquire lisence for CS:GO');
+            logger.warning('Failed to acquire license for CS:GO');
             logger.error(err);
           } else {
             logger.info('Successfully acquired license for CS:GO');
@@ -77,7 +100,7 @@ class Inspector {
 
     client.on('disconnected', (eresult, msg) => {
       // We got disconnected from Steam.
-      logger.warn('Disconnected from Steam', {
+      logger.warning('Disconnected from Steam', {
         eresult,
         msg,
       });
@@ -93,43 +116,33 @@ class Inspector {
     });
 
     csgo.on('disconnectedFromGC', (reason) => {
-      logger.warn('Disconnected from CS:GO game coordinator', { reason });
+      logger.warning('Disconnected from CS:GO game coordinator', { reason });
     });
 
     csgo.on('inspectItemTimedOut', (assetid) => {
-      logger.warn(`Inspect timed out for assetid ${assetid}`);
+      logger.warning(`Inspect timed out for assetid ${assetid}`);
     });
 
     this.clients.push({
       client,
       csgo,
-      busySince: null,
+      startedAt: 0,
+      busy: false,
     });
   }
 
-  inspect(url, timeoutMs = 3000) {
+  inspect(url) {
     return new Promise((resolve, reject) => {
-      // We'll want a timeout of at least 1500 ms.
-      if (timeoutMs < 1500) {
-        throw new Error('The specified timeout must be at least 1500 ms');
-      }
-
-      // Make sure that the promise is rejected after the timeout.
-      setTimeout(() => {
-        reject(new Error(`Inspection timed out after ${timeoutMs} ms`));
-      }, timeoutMs);
-
-      // Set the retry interval and the number of retries.
-      // We subtract 1000 ms from the `timeoutMs` because we'll need some time
-      // for the inspection too.
-      const retryInterval = 100;
-      const retryTimes = Math.round((timeoutMs - 1000 / retryInterval));
+      // Set the number of retries.
+      const retryTimes = Math.round(this.selectTimeout / this.selectInterval);
 
       // Find an index of a client that is currently not busy and has a GC connection.
       async
-        .retry({ times: retryTimes, interval: retryInterval }, async () => {
+        .retry({ times: retryTimes, interval: this.selectInterval }, async () => {
           const index = this.clients.findIndex(
-            (client) => client.busySince === null && client.csgo.haveGCSession,
+            (client) => client.busy === false
+              && client.startedAt + this.inspectionInterval < Date.now()
+              && client.csgo.haveGCSession,
           );
 
           if (index === -1) {
@@ -138,20 +151,27 @@ class Inspector {
             );
           }
 
+          // Mark the client as busy so that it won't be used for other inspections.
+          // If the inspection succeeds, `busy` will be cleared immediately.
+          // If the inspection times out, `busy` will be cleared after within
+          // 1 second after the timeout.
+          this.clients[index].busy = true;
+          this.clients[index].startedAt = Date.now();
+
           return index;
         })
         .then((index) => {
-          // Mark the client as busy so that it won't be used for other inspections.
-          // If the inspection succeeds, `busySince` will be cleared immediately.
-          // If the inspection times out, `busySince` will be cleared after within
-          // 1 second after the timeout.
-          this.clients[index].busySince = Date.now();
-
           this.clients[index].csgo.inspectItem(url, (item) => {
-            this.clients[index].busySince = null;
+            this.clients[index].busy = false;
             resolve(item);
           });
-        });
+
+          // Make sure that the promise is rejected after the timeout.
+          setTimeout(() => {
+            reject(new Error(`Inspection timed out after ${this.inspectionTimeout} ms`));
+          }, this.inspectionTimeout);
+        })
+        .catch((error) => reject(error));
     });
   }
 }

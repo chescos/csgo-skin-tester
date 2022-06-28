@@ -16,7 +16,7 @@ exports.store = async (req, res) => {
   let inspection;
 
   try {
-    inspection = await Inspector.inspect(link, config.get('inspect.timeoutMs'));
+    inspection = await Inspector.inspect(link);
 
     logger.info('Inspected link', inspection);
   } catch (error) {

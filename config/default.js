@@ -24,8 +24,4 @@ module.exports = {
   steam: {
     apiKey: env.STEAM_API_KEY,
   },
-
-  inspect: {
-    timeoutMs: env.INSPECT_TIMEOUT_MS || 3000,
-  },
 };
