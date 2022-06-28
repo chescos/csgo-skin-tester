@@ -76,7 +76,6 @@ curl -X PATCH "https://api.cloudflare.com/client/v4/zones/<zoneId>/settings/ipv6
 |DATABASE_MIN_CONNECTIONS|integer|1|The minimum number of open database connections.|
 |DATABASE_MAX_CONNECTIONS|integer|10|The maximum number of open database connections.|
 |STEAM_API_KEY|string|none|The Steam API key that is used to interact with the Steam API.|
-|INSPECT_TIMEOUT_MS|integer|3000|The time in milliseconds after which an inspect request times out if no response from Steam is received.|
 
 ## REST API
 
