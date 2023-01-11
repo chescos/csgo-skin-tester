@@ -23,7 +23,7 @@
     "express": "^4.17.1",
     "express-validator": "^6.6.0",
     "globaloffensive": "^2.1.0",
-    "knex": "^0.21.1",
+    "knex": "^2.4.0",
     "lodash": "^4.17.19",
     "nssocket": "^0.6.0",
     "objection": "^2.2.0",
