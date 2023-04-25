@@ -1,6 +1,4 @@
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, './.env') });
-const config = require('config');
 const vdf = require('simple-vdf');
 const async = require('async');
 const axios = require('axios');
@@ -15,7 +13,6 @@ const sources = {
   itemsGame: 'https://raw.githubusercontent.com/SteamDatabase/GameTracking-CSGO/master/csgo/scripts/items/items_game.txt',
   itemsGameCdn: 'https://raw.githubusercontent.com/SteamDatabase/GameTracking-CSGO/master/csgo/scripts/items/items_game_cdn.txt',
   csgoEnglish: 'https://raw.githubusercontent.com/SteamDatabase/GameTracking-CSGO/master/csgo/resource/csgo_english.txt',
-  schema: `https://api.steampowered.com/IEconItems_730/GetSchema/v2/?key=${config.get('steam.apiKey')}&format=vdf&language=`,
 };
 
 (async () => {
@@ -32,7 +29,6 @@ const sources = {
 
   results.itemsGame = vdf.parse(results.itemsGame);
   results.csgoEnglish = vdf.parse(results.csgoEnglish);
-  results.schema = vdf.parse(results.schema);
   results.itemsGameCdn = results.itemsGameCdn.split('\n').reduce((result, line) => {
     if (line.charAt(0) === '#' || line === '') {
       return result;
@@ -67,7 +63,7 @@ const sources = {
     return translation;
   };
 
-  const { items } = results.schema.result;
+  const { items } = results.itemsGame.items_game;
   const paintkits = results.itemsGame.items_game.paint_kits;
   const skins = results.itemsGameCdn;
 
@@ -82,12 +78,15 @@ const sources = {
 
     let matchingItem = null;
 
-    _.forEach(items, (item) => {
+    _.forEach(items, (item, key) => {
       const isCurrentlyBestMatch = name.startsWith(item.name)
         && (matchingItem === null || item.name.length > matchingItem.name.length);
 
       if (isCurrentlyBestMatch) {
-        matchingItem = item;
+        matchingItem = {
+          ...item,
+          defindex: key,
+        };
       }
     });
 
@@ -106,17 +105,26 @@ const sources = {
 
     const skinImageUrl = image.replace('http://media.steampowered.com', 'https://steamcdn-a.akamaihd.net');
 
+    // Gloves have no item image, use the skin image instead.
+    const imageUrl = results.itemsGameCdn[matchingItem.name] || skinImageUrl;
+
+    const prefab = results.itemsGame.items_game.prefabs[matchingItem.prefab];
+    const subPrefab = results.itemsGame.items_game.prefabs[prefab.prefab];
+
+    const itemClass = prefab.item_class || subPrefab.item_class || 'wearable_item';
+
+    const itemName = matchingItem.item_name || prefab.item_name;
+
     const res = {
       name_technical: name,
       image_url: skinImageUrl,
       item: {
         name_technical: matchingItem.name,
         defindex: matchingItem.defindex,
-        // Gloves have no item image, use the skin image instead.
-        image_url: matchingItem.image_url || skinImageUrl,
-        class: matchingItem.item_class,
-        name: getTranslation(matchingItem.item_name),
-        type: getTranslation(matchingItem.item_type_name),
+        image_url: imageUrl,
+        class: itemClass,
+        name: getTranslation(itemName),
+        type: getTranslation(subPrefab.item_type_name),
       },
       paintkit: {
         name_technical: matchingPaintkit.name,
